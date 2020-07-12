@@ -1,0 +1,89 @@
+---
+# tasks file for ansible-role-backup
+- name: Install packages
+  package:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - python-pip
+      - python-setuptools
+      - restic
+      - davfs2
+
+- name: Configure passwords for webdav
+  lineinfile: 
+    path: /etc/davfs2/secrets 
+    line: "{{ davfs2_src }} {{ davfs2_user }} {{ davfs2_password }}" 
+    state: present
+
+- name: Ensure mount-dest paths are presents 
+  file: 
+    path: "{{  davfs2_dest }}"
+    state: directory
+
+- name: Mount davfs2 mountpoints
+  mount: 
+    path: "{{ davfs2_dest }}"
+    src: "{{  davfs2_src }}" 
+    state: mounted 
+    fstype: davfs 
+
+
+- name: Set restic_repo fact
+  set_fact:
+    restic_backupRepository: "{{ davfs2_dest }}{{ ansible_hostname }}"
+
+- name: Check if backup-repo exists
+  stat:
+    path: "{{ restic_backupRepository }}"
+  register: stat_results
+  ignore_errors: true
+
+- name: Ensure backup directory for host exists
+  file: 
+    path: "{{ restic_backupRepository }}" 
+    state: directory
+
+- name: Init backup repo
+  shell: |
+    restic init --repo "{{ restic_backupRepository }}"
+  environment:
+    RESTIC_PASSWORD: "{{ restic_password }}"
+  when: not stat_results.stat.exists  
+
+- name: Make sure pymysql is present
+  pip:
+    name: pymysql
+    state: present
+
+- name: Ensure backup-user exists
+  mysql_user:
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_password }}"
+    name: "{{ mysql_backupUser }}"
+    password: "{{ mysql_backupPassword }}"
+    priv: '*.*:SELECT,SHOW VIEW,LOCK TABLES,RELOAD,REPLICATION CLIENT'
+    state: present
+
+- name: Create backup-script
+  template: 
+    src: backup.sh
+    dest: "/root/backup.sh"
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Create dump-destination for mysql backups
+  file: 
+    path: "{{ mysql_dumpDestination }}"
+    state: directory
+
+- name: Install backup cronjob
+  cron: 
+    name: Create backup
+    user: root
+    minute: "0"
+    hour: "{{ backup_hour }}" 
+    job: "/root/backup.sh"
+    cron_file: backup
