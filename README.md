@@ -14,12 +14,6 @@ Role Variables
 
 The following variables don't have defaults. You need to specify them either in a file in group_vars, host_vars directory or via command-line.
 ```yaml
-davfs2_mounts:
-  - src: <url of webdav server>
-    dest: <mountpoint>
-    user: <user>
-    password: <password>
-
 mysql:
   backupUser: <user with permission to create dumps of alls databases mentioned>
   backupPassword: <password of backup user>

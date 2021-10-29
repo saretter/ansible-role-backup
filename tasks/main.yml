@@ -11,28 +11,14 @@
       - restic
       - davfs2
 
-- name: Configure passwords for webdav
-  lineinfile: 
-    path: /etc/davfs2/secrets 
-    line: "{{ davfs2_src }} {{ davfs2_user }} {{ davfs2_password }}" 
-    state: present
-
 - name: Ensure mount-dest paths are presents 
   file: 
-    path: "{{  davfs2_dest }}"
+    path: "{{  backup_dest }}"
     state: directory
-
-- name: Mount davfs2 mountpoints
-  mount: 
-    path: "{{ davfs2_dest }}"
-    src: "{{  davfs2_src }}" 
-    state: mounted 
-    fstype: davfs 
-
 
 - name: Set restic_repo fact
   set_fact:
-    restic_backupRepository: "{{ davfs2_dest }}{{ ansible_hostname }}"
+    restic_backupRepository: "{{ backup_dest }}{{ ansible_hostname }}"
 
 - name: Check if backup-repo exists
   stat:
@@ -68,8 +54,8 @@
 
 - name: Create backup-script
   template: 
-    src: backup.sh
-    dest: "/root/backup.sh"
+    src: backup-ng.sh
+    dest: "/ansible/backup-ng.sh"
     owner: root
     group: root
     mode: "0700"
@@ -85,5 +71,5 @@
     user: root
     minute: "0"
     hour: "{{ backup_hour }}" 
-    job: "/root/backup.sh"
+    job: "/ansible/backup-ng.sh"
     cron_file: backup
