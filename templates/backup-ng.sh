@@ -22,7 +22,7 @@ RESTIC_SNAPSHOTS_TO_KEEP={{restic_snapshotsToKeep}}
 
 # Create SQL dumps# Create DB-Dumps
 if [ "$DATABASES" != "" ]; then
-  FILE=$MSQLDUMPDEST/mysql-$(date +"%Y-%m-%d_%T").gz
+  FILE=$MSQLDUMPDEST/mysql-$(date +"%Y-%m-%d_%H-%M").gz
   $MYSQLDUMP -u $MUSER -h $MHOST -p$MPASS --databases $DATABASES | $GZIP -9 > $FILE
 fi
 
