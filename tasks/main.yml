@@ -6,10 +6,8 @@
     state: present
   vars:
     packages:
-      - python-pip
       - python-setuptools
       - restic
-      - davfs2
 
 - name: Ensure mount-dest paths are presents 
   file: 
