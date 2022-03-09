@@ -53,7 +53,7 @@
 - name: Create backup-script
   template: 
     src: backup-ng.sh
-    dest: "/ansible/backup-ng.sh"
+    dest: "/{{ cronjob_user }}/backup-ng.sh"
     owner: root
     group: root
     mode: "0700"
@@ -66,8 +66,8 @@
 - name: Install backup cronjob
   cron: 
     name: Create backup
-    user: root
+    user: "{{ cronjob_user }}"
     minute: "0"
     hour: "{{ backup_hour }}" 
-    job: "/ansible/backup-ng.sh"
+    job: "/{{ cronjob_user }}/backup-ng.sh"
     cron_file: backup
