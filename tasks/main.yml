@@ -16,7 +16,7 @@
 
 - name: Set restic_repo fact
   set_fact:
-    restic_backupRepository: "{{ backup_dest }}{{ ansible_hostname }}"
+    restic_backupRepository: "{{ backup_dest }}"
 
 - name: Check if backup-repo exists
   stat:
