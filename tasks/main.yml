@@ -18,11 +18,11 @@
   set_fact:
     restic_backupRepository: "{{ backup_dest }}"
 
-- name: Check if backup-repo exists
-  stat:
-    path: "{{ restic_backupRepository }}"
-  register: stat_results
-  ignore_errors: true
+# - name: Check if backup-repo exists
+#   stat:
+#     path: "{{ restic_backupRepository }}"
+#   register: stat_results
+#   ignore_errors: true
 
 - name: Ensure backup directory for host exists
   file: 
@@ -34,7 +34,7 @@
     restic init --repo "{{ restic_backupRepository }}"
   environment:
     RESTIC_PASSWORD: "{{ restic_password }}"
-  when: not stat_results.stat.exists  
+  #when: not stat_results.stat.exists  
 
 - name: Make sure pymysql is present
   pip:
