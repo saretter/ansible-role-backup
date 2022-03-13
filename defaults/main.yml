@@ -1,3 +1,3 @@
 ---
 # defaults file for ansible-role-backup
-# davfs2 remote storage to be mounted
+postgre_backupUser: postgres

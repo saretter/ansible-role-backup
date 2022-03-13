@@ -9,10 +9,10 @@
       - python-setuptools
       - restic
 
-- name: Ensure mount-dest paths are presents 
-  file: 
-    path: "{{  backup_dest }}"
-    state: directory
+# - name: Ensure mount-dest paths are presents 
+#   file: 
+#     path: "{{  backup_dest }}"
+#     state: directory
 
 - name: Set restic_repo fact
   set_fact:
@@ -44,7 +44,7 @@
     name: pymysql
     state: present
 
-- name: Ensure backup-user exists
+- name: "Ensure mysql backup-user {{ mysql_backupUser }} exists"
   mysql_user:
     login_user: "{{ mysql_admin_user }}"
     login_password: "{{ mysql_admin_password }}"
@@ -61,9 +61,9 @@
     group: root
     mode: "0700"
 
-- name: Create dump-destination for mysql backups
+- name: "Create dump-destination {{ backup_dumpDestination }}"
   file: 
-    path: "{{ mysql_dumpDestination }}"
+    path: "{{ backup_dumpDestination }}"
     state: directory
 
 - name: Install backup cronjob

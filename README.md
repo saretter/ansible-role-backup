@@ -14,21 +14,22 @@ Role Variables
 
 The following variables don't have defaults. You need to specify them either in a file in group_vars, host_vars directory or via command-line.
 ```yaml
-mysql:
-  backupUser: <user with permission to create dumps of alls databases mentioned>
-  backupPassword: <password of backup user>
-  backupHost: <database-host typically localhost>
-  databases: <space separated names of databases>
-  dumpDestination: <location to store sql-backups>
 
-restic: 
-  password: <the restic password>
-  backupPaths: <the backup paths separated by space>
-  snapshotsToKeep: <number of snapshots to keep>
+backup_hour: <hour of backup execution>
+backup_dumpDestination: <location to store sql-backups>
 
-backup:
-  hour: <hour of backup execution>
-
+mysql_backupUser: <user with permission to create dumps of alls databases mentioned>
+mysql_backupPassword: <password of backup user>
+mysql_backupHost: <database-host typically localhost>
+mysql_databases: <space separated names of databases>
+  
+postgre:
+  
+restic_password: <the restic password>
+restic_s3_key_id
+restic_s3_key_secret
+restic_backupPaths: <the backup paths separated by space>
+restic_snapshotsToKeep: <number of snapshots to keep>
 ```
 
 Example Playbook

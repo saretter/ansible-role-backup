@@ -4,12 +4,17 @@
 MUSER={{mysql_backupUser}}
 MPASS={{mysql_backupPassword}}
 MHOST={{mysql_backupHost}}
-MSQLDUMPDEST={{mysql_dumpDestination}}
+DUMPDEST={{backup_dumpDestination}}
 MYSQL="$(which mysql)"
 MYSQLDUMP="$(which mysqldump)"
+PGDUMP="$(which pg_dump)"
+PGUSER={{pg_backupUser}}
+PGHOST={{pg_backupHost}}
+
 GZIP="$(which gzip)"
 # if you leave this empty no Database-Backup will be performed
-DATABASES="{{mysql_databases}}"
+MYSQLDATABASES="{{mysql_databases}}"
+PGDATABASES="{{pg_databases}}"
 
 # Restic settings
 export RESTIC_PASSWORD={{restic_password}}
@@ -20,15 +25,25 @@ RESTIC_BACKUP_PATHS="{{restic_backupPaths}}"
 RESTIC_BACKUP_REPOSITORY={{restic_backupRepository}}
 RESTIC_SNAPSHOTS_TO_KEEP={{restic_snapshotsToKeep}}
 
-# Create SQL dumps# Create DB-Dumps
-if [ "$DATABASES" != "" ]; then
-  FILE=$MSQLDUMPDEST/mysql-$(date +"%Y-%m-%d_%H-%M").gz
-  $MYSQLDUMP -u $MUSER -h $MHOST -p$MPASS --databases $DATABASES | $GZIP -9 > $FILE
+# Create MYSQL dumps# Create DB-Dumps
+if [ "$MYSQLDATABASES" != "" ]; then
+  FILE=$DUMPDEST/mysql-$(date +"%Y-%m-%d_%H-%M").gz
+  $MYSQLDUMP -u $MUSER -h $MHOST -p$MPASS --databases $MYSQLDATABASES | $GZIP -9 > $FILE
+fi
+
+# Create PostgreSQL Dumps
+if [ "$PGDATABASES" != "" ]; then
+  read -ra DBs <<< "$PGDATABASES"
+  for i in  "${DBs[@]}";
+  do
+    FILE=$DUMPDEST/pgsql-$i-$(date +"%Y-%m-%d_%H-%M").gz
+    sudo -i -u $PGUSER $PGDUMP --dbname $i | $GZIP -9 > $FILE
+  done
 fi
 
 # Cleanup old db-dumps
-if [ "$MYSQLDUMPDEST" != "" ]; then 
-  find $MYSQLDUMPDEST \( -name '*' \) -mtime +$RESTIC_SNAPSHOTS_TO_KEEP -exec rm -rf {} \;
+if [ "$DUMPDEST" != "" ]; then 
+  find $DUMPDEST \( -name '*' \) -mtime +$RESTIC_SNAPSHOTS_TO_KEEP -exec rm -rf {} \;
 fi
 # Create Restic backup
 restic -r $RESTIC_BACKUP_REPOSITORY backup $RESTIC_BACKUP_PATHS
