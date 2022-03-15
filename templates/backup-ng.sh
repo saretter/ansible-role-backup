@@ -18,11 +18,11 @@ PGDATABASES="{{pg_databases}}"
 
 # Restic settings
 export RESTIC_PASSWORD={{restic_password}}
+export RESTIC_REPOSITORY={{restic_backupRepository}}
 export AWS_ACCESS_KEY_ID={{restic_s3_key_id}}
 export AWS_SECRET_ACCESS_KEY={{restic_s3_key_secret}}
 
 RESTIC_BACKUP_PATHS="{{restic_backupPaths}}"
-RESTIC_BACKUP_REPOSITORY={{restic_backupRepository}}
 RESTIC_SNAPSHOTS_TO_KEEP={{restic_snapshotsToKeep}}
 
 # Create MYSQL dumps# Create DB-Dumps
@@ -46,13 +46,14 @@ if [ "$DUMPDEST" != "" ]; then
   find $DUMPDEST \( -name '*' \) -mtime +$RESTIC_SNAPSHOTS_TO_KEEP -exec rm -rf {} \;
 fi
 # Create Restic backup
-restic -r $RESTIC_BACKUP_REPOSITORY backup $RESTIC_BACKUP_PATHS
+restic backup $RESTIC_BACKUP_PATHS
 
 # Prune old backups
-restic -r $RESTIC_BACKUP_REPOSITORY forget --keep-last $RESTIC_SNAPSHOTS_TO_KEEP
+restic forget --keep-last $RESTIC_SNAPSHOTS_TO_KEEP
 
 # Unset several environment variables containing credentials
 unset RESTIC_PASSWORD
+unset RESTIC_REPOSITORY
 unset MPASS
 unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
