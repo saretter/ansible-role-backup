@@ -46,6 +46,7 @@ if [ "$DUMPDEST" != "" ]; then
   find $DUMPDEST \( -name '*' \) -mtime +$RESTIC_SNAPSHOTS_TO_KEEP -exec rm -rf {} \;
 fi
 # Create Restic backup
+restic snapshots > /dev/null || restic init
 restic backup $RESTIC_BACKUP_PATHS
 
 # Prune old backups

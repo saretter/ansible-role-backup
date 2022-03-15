@@ -29,15 +29,7 @@
 #     path: "{{ restic_backupRepository }}" 
 #     state: directory
 
-- name: Init backup repo
-  shell: |
-    restic init --repo "{{ restic_backupRepository }}"
-  environment:
-    RESTIC_PASSWORD: "{{ restic_password }}"
-    RESTIC_REPOSITORY: "{{ restic_backupRepository }}"
-    AWS_ACCESS_KEY_ID: "{{ restic_s3_key_id }}"
-    AWS_SECRET_ACCESS_KEY: "{{ restic_s3_key_secret }}"
-  #when: not stat_results.stat.exists  
+
 
 - name: Make sure pymysql is present
   pip:
